@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>てこのなぞ 10問</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,9 +38,12 @@
   color-scheme: dark;
 }
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px); overscroll-behavior:none}
 body{
-  margin:0; color:var(--ink);
+  margin:0; color:var(--ink); overscroll-behavior:none;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+  -webkit-text-size-adjust:100%; text-size-adjust:100%;
   font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;
   background-color:var(--bg);
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
@@ -64,6 +67,9 @@ h1{margin:0; font-size:clamp(26px,4vw,36px); font-weight:900; letter-spacing:.04
 .qtext{margin:6px 0 0; font-size:clamp(17px,2.2vw,21px); max-width:46em}
 .rule{margin:8px 0 0; display:flex; flex-wrap:wrap; gap:8px}
 .rule span{border:2px solid var(--ink); border-radius:999px; padding:2px 12px; font-weight:700; font-size:15px}
+.main{display:flex; flex-direction:column}
+.panel{display:contents}
+.q{order:-1}
 .stage{position:relative; background:var(--panel); border:2px solid var(--line); border-radius:18px; overflow:hidden}
 svg{display:block; width:100%; height:auto; touch-action:manipulation; user-select:none; -webkit-user-select:none}
 .chip{
@@ -73,7 +79,8 @@ svg{display:block; width:100%; height:auto; touch-action:manipulation; user-sele
 }
 .chip.ok{background:var(--ok); color:#fff; border-color:var(--ok)}
 .chip.ng{background:var(--ng); color:#fff; border-color:var(--ng)}
-.legend{display:flex; flex-wrap:wrap; gap:14px; padding:8px 14px 12px; font-size:14px; color:var(--sub)}
+.legend{display:flex; flex-wrap:wrap; align-items:center; gap:4px 14px; padding:8px 14px 12px; font-size:14px; color:var(--sub)}
+.reset{margin-left:auto; font:inherit; font-size:13px; background:none; border:none; color:var(--sub); text-decoration:underline; cursor:pointer; padding:4px 0}
 .legend i{display:inline-block; width:22px; height:13px; border-radius:3px; vertical-align:-1px; margin-right:6px}
 .controls{display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 6px}
 button.b{
@@ -96,13 +103,14 @@ button:focus-visible{outline:3px solid var(--focus); outline-offset:3px}
 .calc-head{font-size:14px; color:var(--sub); margin:0}
 .ask{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:10px 0; font-size:20px; font-weight:700}
 .ask input{
-  font:inherit; font-size:22px; width:6em; min-height:52px; padding:0 12px;
+  font:inherit; font-size:22px; width:4.2em; min-height:52px; padding:0 10px; text-align:center;
   border-radius:12px; border:2px solid var(--ink); background:var(--panel); color:var(--ink);
+  -webkit-user-select:text; user-select:text;
 }
+.stepper{display:inline-flex; align-items:center; gap:6px}
+button.b.sm{min-height:52px; padding:0 12px; font-size:18px}
 .nav{display:flex; justify-content:space-between; gap:10px; margin-top:22px}
 .allclear{background:var(--ok); color:#fff; border-radius:14px; padding:12px 16px; font-weight:900; font-size:22px; margin:10px 0}
-footer{margin-top:26px; text-align:right}
-footer button{font:inherit; font-size:14px; background:none; border:none; color:var(--sub); text-decoration:underline; cursor:pointer}
 #toast{
   position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%);
   background:var(--ink); color:var(--bg); padding:10px 18px; border-radius:12px; font-weight:700;
@@ -118,7 +126,7 @@ footer button{font:inherit; font-size:14px; background:none; border:none; color:
 .sidelabel{fill:var(--sub); font-size:22px; font-weight:900; text-anchor:middle}
 .fulcrum{fill:var(--ink); font-size:18px; font-weight:700; text-anchor:middle}
 .hit{fill:var(--brass); fill-opacity:0; cursor:pointer}
-.hit:hover{fill-opacity:.18}
+@media (hover:hover){ .hit:hover{fill-opacity:.18} }
 .hit:focus{outline:none}
 .hit:focus-visible{stroke:var(--focus); stroke-width:4}
 .string{stroke:var(--ink); stroke-width:2; opacity:.65}
@@ -140,6 +148,61 @@ footer button{font:inherit; font-size:14px; background:none; border:none; color:
   .dot{width:34px; height:34px; font-size:14px}
 }
 @media (prefers-reduced-motion: reduce){ #toast{transition:none} }
+
+/* 横長の画面（iPad横・Chromebook・プロジェクター）：スクロールなしの1画面 */
+@media (orientation: landscape) and (min-width: 900px) and (min-height: 520px){
+  :root{padding:0}
+  html,body{height:100%; overflow:hidden}
+  .wrap{
+    max-width:none; height:100vh; height:100dvh; display:flex; flex-direction:column;
+    padding:8px max(14px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));
+  }
+  header{flex-wrap:nowrap; padding:0 0 8px; gap:16px}
+  h1{font-size:26px; line-height:1.2; white-space:nowrap}
+  .sub{display:none}
+  .dot{width:38px; height:38px; font-size:15px}
+  .main{flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) clamp(340px,33vw,450px); gap:14px}
+  .leftcol{display:flex; flex-direction:column; min-height:0}
+  .stage{flex:1; min-height:0; display:flex; flex-direction:column}
+  .svgbox{flex:1; min-height:0; position:relative}
+  .svgbox svg{position:absolute; inset:0; width:100%; height:100%}
+  .legend{padding:4px 12px 6px; font-size:13px}
+  .controls{margin:10px 0 0; flex-wrap:nowrap}
+  .controls .primary{flex:1}
+  .howto{margin:4px 0 0; font-size:14px}
+  .panel{
+    display:flex; flex-direction:column; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+    background:var(--panel); border:2px solid var(--line); border-radius:18px; padding:12px 14px;
+  }
+  .q{margin:0 0 6px; padding:2px 0 2px 12px; border-left-width:6px}
+  .qno{font-size:14px}
+  .qtitle{font-size:24px; line-height:1.3}
+  .qtext{font-size:17px; line-height:1.5; margin-top:4px}
+  .rule{margin-top:6px; gap:6px}
+  .rule span{font-size:14px; padding:1px 10px}
+  .hint{font-size:17px; margin:8px 0 0; padding:6px 14px; line-height:1.5}
+  .allclear{font-size:18px; padding:6px 12px; margin:8px 0 0}
+  .leftcol:has(.allclear) .howto, .leftcol:has(.hint:not([hidden])) .howto{display:none}
+  .ask label{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  #result{margin-top:4px}
+  .verdict{font-size:22px; margin:0 0 2px}
+  .note{font-size:15px; margin:0 0 6px; line-height:1.45}
+  .calc-head{font-size:13px}
+  .calc{gap:8px; margin:4px 0}
+  .side{padding:6px 10px; border-radius:10px; background:var(--bg)}
+  .side h3{font-size:14px; margin:0}
+  .side ul{font-size:15px; line-height:1.5}
+  .side .sum{font-size:16px; margin-top:4px; padding-top:4px}
+  .ask{font-size:17px; gap:6px; margin:6px 0; flex-wrap:nowrap}
+  .ask input{font-size:20px; min-height:46px; width:3.2em; padding:0 6px}
+  .stepper{gap:4px}
+  button.b.sm{min-height:46px; font-size:16px; padding:0 8px}
+  .ask .primary{padding:0 14px !important; margin-left:auto}
+  #result .controls{margin:6px 0 0}
+  #result button.b{min-height:46px; font-size:17px; padding:0 18px}
+  .nav{margin-top:auto; padding-top:8px}
+  .nav .b{min-height:44px; font-size:16px; padding:0 16px}
+}
 </style>
 </head>
 <body>
@@ -152,38 +215,42 @@ footer button{font:inherit; font-size:14px; background:none; border:none; color:
     <nav class="dots" id="dots" aria-label="なぞをえらぶ"></nav>
   </header>
 
-  <section class="q">
-    <div class="qno" id="qno"></div>
-    <h2 class="qtitle" id="qtitle"></h2>
-    <p class="qtext" id="qtext"></p>
-    <div class="rule" id="rule"></div>
-  </section>
-
-  <div class="stage">
-    <svg id="lever" viewBox="0 0 1000 630" role="img" aria-label="実験用てこ"></svg>
-    <div class="chip" id="chip"></div>
-    <div class="legend">
-      <span><i style="background:var(--brass)"></i>つけたおもり（1個10g）</span>
-      <span><i style="background:var(--fixed)"></i>はじめからついているおもり</span>
-      <span><i style="background:var(--box)"></i>なぞの箱</span>
+  <main class="main">
+    <div class="leftcol">
+      <div class="stage">
+        <div class="svgbox"><svg id="lever" viewBox="0 0 1000 630" role="img" aria-label="実験用てこ"></svg></div>
+        <div class="chip" id="chip"></div>
+        <div class="legend">
+          <span><i style="background:var(--brass)"></i>つけたおもり（1個10g）</span>
+          <span><i style="background:var(--fixed)"></i>はじめからついているおもり</span>
+          <span><i style="background:var(--box)"></i>なぞの箱</span>
+          <button class="reset" id="resetAll">クリアのきろくをけす</button>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="b primary" id="check">手をはなしてかくにん</button>
+        <button class="b" id="clearBtn">おもりをぜんぶはずす</button>
+        <button class="b" id="hintBtn" aria-expanded="false">ヒント</button>
+      </div>
+      <div class="hint" id="hint" hidden></div>
+      <p class="howto">光っている穴をタップするとおもり（10g）が1個つく。つけたおもりをタップすると1個はずれる。</p>
+      <div id="allclear"></div>
     </div>
-  </div>
 
-  <div class="controls">
-    <button class="b primary" id="check">手をはなしてかくにん</button>
-    <button class="b" id="clearBtn">おもりをぜんぶはずす</button>
-    <button class="b" id="hintBtn" aria-expanded="false">ヒント</button>
-  </div>
-  <p class="howto">光っている穴をタップするとおもり（10g）が1個つく。つけたおもりをタップすると1個はずれる。</p>
-  <div class="hint" id="hint" hidden></div>
-  <div id="allclear"></div>
-  <section id="result" aria-live="polite"></section>
-
-  <div class="nav">
-    <button class="b" id="prev">まえのなぞ</button>
-    <button class="b" id="next">つぎのなぞ</button>
-  </div>
-  <footer><button id="resetAll">クリアのきろくをけす</button></footer>
+    <aside class="panel" id="panel">
+      <section class="q">
+        <div class="qno" id="qno"></div>
+        <h2 class="qtitle" id="qtitle"></h2>
+        <p class="qtext" id="qtext"></p>
+        <div class="rule" id="rule"></div>
+      </section>
+      <section id="result" aria-live="polite"></section>
+      <div class="nav">
+        <button class="b" id="prev">まえのなぞ</button>
+        <button class="b" id="next">つぎのなぞ</button>
+      </div>
+    </aside>
+  </main>
 </div>
 <div id="toast" role="status"></div>
 
@@ -302,7 +369,7 @@ function buildScene(){
   }
   el('circle',{cx:CX,cy:CY,r:11,class:'pivot'},svg);
   layout();
-  if(fk){ const e=svg.querySelector(`[data-key="${fk}"]`); if(e) e.focus(); }
+  if(fk){ const e=svg.querySelector(`[data-key="${fk}"]`); if(e) e.focus({preventScroll:true}); }
 }
 
 function layout(){
@@ -388,19 +455,23 @@ function check(){
   }
   if(pr.box && !solved){
     res.innerHTML=`<p class="verdict ok">つりあった！</p><p class="note">では、なぞの箱は何g？</p>${calcHTML()}
-      <div class="ask"><label for="ans">なぞの箱は</label><input id="ans" type="number" inputmode="numeric" min="0" step="10"><span>g</span>
-      <button class="b primary" id="ansBtn">こたえる</button></div><p class="note" id="ansMsg"></p>`;
+      <div class="ask"><label for="ans">なぞの箱は</label>
+        <span class="stepper"><button class="b sm" id="ansMinus" aria-label="10gへらす">−10</button><input id="ans" type="text" inputmode="none" autocomplete="off" placeholder="0"><button class="b sm" id="ansPlus" aria-label="10gふやす">＋10</button></span><span>g</span>
+        <button class="b primary" id="ansBtn">こたえる</button></div><p class="note" id="ansMsg"></p>`;
     const go=()=>answer($('ans').value);
+    const bump=d=>{ const a=$('ans'); a.value=Math.max(0,(parseInt(a.value,10)||0)+d); $('ansMsg').textContent=''; };
+    $('ansMinus').addEventListener('click',()=>bump(-10));
+    $('ansPlus').addEventListener('click',()=>bump(10));
     $('ansBtn').addEventListener('click',go);
     $('ans').addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
-    $('ans').focus();
     return;
   }
   win(`<p class="verdict ok">なぞクリア！</p><p class="note">左と右の「重さ×きょり」が同じになると、てこはつりあうね。</p>${calcHTML()}`);
 }
 function answer(v){
   const b=q().box, msg=$('ansMsg');
-  if(v===''){ msg.textContent='数字を入れてね。'; return; }
+  v=String(v).trim().replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+  if(!/^\d+$/.test(v)){ msg.textContent='＋10・−10で重さを入れてね。'; return; }
   if(Number(v)===b.g){
     solved=true; buildScene();
     win(`<p class="verdict ok">せいかい！なぞの箱は${b.g}g</p><p class="note">箱のがわと反対がわの「重さ×きょり」が同じになる重さを考えたね。</p>${calcHTML()}`);
@@ -450,8 +521,20 @@ function load(i){
   $('prev').style.visibility=i===0?'hidden':'visible';
   $('next').style.visibility=i===P.length-1?'hidden':'visible';
   renderDots(); buildScene(); setChip();
-  window.scrollTo({top:0, behavior: reduce?'auto':'smooth'});
+  $('panel').scrollTop=0;
+  if(!fit.matches) window.scrollTo({top:0, behavior: reduce?'auto':'smooth'});
 }
+
+// 画面を動かさない：2本指の拡大・ダブルタップ拡大・横画面でのページのひっぱりを止める
+const fit=window.matchMedia('(orientation: landscape) and (min-width: 900px) and (min-height: 520px)');
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{
+  if(e.touches.length>1){ e.preventDefault(); return; }
+  if(!fit.matches) return;
+  const p=e.target.closest && e.target.closest('.panel');
+  if(!p || p.scrollHeight<=p.clientHeight+1) e.preventDefault();
+},{passive:false});
+document.addEventListener('dblclick',e=>e.preventDefault());
 
 $('check').addEventListener('click',check);
 $('clearBtn').addEventListener('click',()=>{ placed={L:[0,0,0,0,0,0,0],R:[0,0,0,0,0,0,0]}; changed(); });
