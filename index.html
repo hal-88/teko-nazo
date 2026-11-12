@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>てこのなぞ 10問</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2ef; --grid:#dfe7e2; --ink:#1d2b3a; --sub:#56657a; --panel:#ffffff; --line:#c9d3cd;
+  --steel:#b4bec8; --steel-d:#6f7c89; --stand:#7c8996;
+  --brass:#d29b2e; --brass-d:#8f6a1c; --fixed:#5c6b7a; --box:#6a4f9e;
+  --ok:#2f8a57; --ng:#c8473a; --focus:#2f6fd1;
+  --btn:#1d2b3a; --btn-text:#ffffff;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141a1f; --grid:#1b232a; --ink:#e6ecf1; --sub:#9aa8b6; --panel:#1b2329; --line:#2e3a44;
+    --steel:#6d7884; --steel-d:#c3ccd5; --stand:#56626e;
+    --brass:#e0ae48; --brass-d:#f5d27e; --fixed:#8b9aaa; --box:#9479cc;
+    --ok:#5cc489; --ng:#ef7a6c; --focus:#7aa7ff;
+    --btn:#e6ecf1; --btn-text:#141a1f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141a1f; --grid:#1b232a; --ink:#e6ecf1; --sub:#9aa8b6; --panel:#1b2329; --line:#2e3a44;
+  --steel:#6d7884; --steel-d:#c3ccd5; --stand:#56626e;
+  --brass:#e0ae48; --brass-d:#f5d27e; --fixed:#8b9aaa; --box:#9479cc;
+  --ok:#5cc489; --ng:#ef7a6c; --focus:#7aa7ff;
+  --btn:#e6ecf1; --btn-text:#141a1f;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; color:var(--ink);
+  font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+  line-height:1.6;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:16px 16px 40px}
+header{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding:8px 0 14px}
+h1{margin:0; font-size:clamp(26px,4vw,36px); font-weight:900; letter-spacing:.04em}
+.sub{margin:0; color:var(--sub); font-size:15px}
+.dots{display:flex; flex-wrap:wrap; gap:6px}
+.dot{
+  width:40px; height:40px; border-radius:50%; border:2px solid var(--line); background:var(--panel);
+  color:var(--ink); font:inherit; font-weight:700; font-size:16px; cursor:pointer;
+}
+.dot.done{background:var(--ok); border-color:var(--ok); color:#fff}
+.dot[aria-current="true"]{outline:3px solid var(--ink); outline-offset:2px}
+.q{border-left:8px solid var(--ink); padding:4px 0 4px 16px; margin:4px 0 10px}
+.qno{font-size:15px; color:var(--sub); font-weight:700}
+.qtitle{margin:0; font-size:clamp(24px,3.4vw,32px); font-weight:900}
+.qtext{margin:6px 0 0; font-size:clamp(17px,2.2vw,21px); max-width:46em}
+.rule{margin:8px 0 0; display:flex; flex-wrap:wrap; gap:8px}
+.rule span{border:2px solid var(--ink); border-radius:999px; padding:2px 12px; font-weight:700; font-size:15px}
+.stage{position:relative; background:var(--panel); border:2px solid var(--line); border-radius:18px; overflow:hidden}
+svg{display:block; width:100%; height:auto; touch-action:manipulation; user-select:none; -webkit-user-select:none}
+.chip{
+  position:absolute; top:12px; left:50%; transform:translateX(-50%);
+  padding:4px 16px; border-radius:999px; font-weight:700; font-size:16px;
+  background:var(--bg); border:2px solid var(--line); white-space:nowrap;
+}
+.chip.ok{background:var(--ok); color:#fff; border-color:var(--ok)}
+.chip.ng{background:var(--ng); color:#fff; border-color:var(--ng)}
+.legend{display:flex; flex-wrap:wrap; gap:14px; padding:8px 14px 12px; font-size:14px; color:var(--sub)}
+.legend i{display:inline-block; width:22px; height:13px; border-radius:3px; vertical-align:-1px; margin-right:6px}
+.controls{display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 6px}
+button.b{
+  font:inherit; font-weight:700; font-size:18px; min-height:52px; padding:0 22px;
+  border-radius:14px; border:2px solid var(--ink); background:var(--panel); color:var(--ink); cursor:pointer;
+}
+button.b.primary{background:var(--btn); color:var(--btn-text); font-size:21px; padding:0 30px}
+button:focus-visible{outline:3px solid var(--focus); outline-offset:3px}
+.howto{margin:4px 0; color:var(--sub); font-size:15px}
+.hint{background:var(--panel); border:2px dashed var(--brass); border-radius:14px; padding:10px 16px; margin:10px 0; font-size:18px}
+#result{margin-top:12px}
+.verdict{font-size:clamp(22px,3vw,28px); font-weight:900; margin:0 0 6px}
+.verdict.ok{color:var(--ok)} .verdict.ng{color:var(--ng)}
+.note{margin:0 0 10px; font-size:17px}
+.calc{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:8px 0}
+.side{background:var(--panel); border:2px solid var(--line); border-radius:14px; padding:10px 14px}
+.side h3{margin:0 0 4px; font-size:17px}
+.side ul{margin:0; padding:0; list-style:none; font-size:18px}
+.side .sum{margin-top:6px; padding-top:6px; border-top:2px solid var(--line); font-weight:900; font-size:20px}
+.calc-head{font-size:14px; color:var(--sub); margin:0}
+.ask{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:10px 0; font-size:20px; font-weight:700}
+.ask input{
+  font:inherit; font-size:22px; width:6em; min-height:52px; padding:0 12px;
+  border-radius:12px; border:2px solid var(--ink); background:var(--panel); color:var(--ink);
+}
+.nav{display:flex; justify-content:space-between; gap:10px; margin-top:22px}
+.allclear{background:var(--ok); color:#fff; border-radius:14px; padding:12px 16px; font-weight:900; font-size:22px; margin:10px 0}
+footer{margin-top:26px; text-align:right}
+footer button{font:inherit; font-size:14px; background:none; border:none; color:var(--sub); text-decoration:underline; cursor:pointer}
+#toast{
+  position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%);
+  background:var(--ink); color:var(--bg); padding:10px 18px; border-radius:12px; font-weight:700;
+  opacity:0; pointer-events:none; transition:opacity .2s; max-width:90vw; text-align:center;
+}
+#toast.show{opacity:1}
+/* SVG */
+.bar{fill:var(--steel); stroke:var(--steel-d); stroke-width:2}
+.hole{fill:var(--ink); opacity:.55}
+.hole.on{fill:var(--panel); stroke:var(--brass); stroke-width:4; opacity:1}
+.num{fill:var(--ink); font-size:22px; font-weight:700; text-anchor:middle; font-family:inherit}
+.num.off{opacity:.3}
+.sidelabel{fill:var(--sub); font-size:22px; font-weight:900; text-anchor:middle}
+.fulcrum{fill:var(--ink); font-size:18px; font-weight:700; text-anchor:middle}
+.hit{fill:var(--brass); fill-opacity:0; cursor:pointer}
+.hit:hover{fill-opacity:.18}
+.hit:focus{outline:none}
+.hit:focus-visible{stroke:var(--focus); stroke-width:4}
+.string{stroke:var(--ink); stroke-width:2; opacity:.65}
+.w{stroke-width:2}
+.w.placed{fill:var(--brass); stroke:var(--brass-d)}
+.w.fixed{fill:var(--fixed); stroke:var(--ink); stroke-opacity:.5}
+.box{fill:var(--box); stroke:var(--ink); stroke-opacity:.4; stroke-width:2}
+.boxq{fill:#fff; font-size:30px; font-weight:900; text-anchor:middle}
+.wlabel{fill:var(--sub); font-size:17px; font-weight:700; text-anchor:middle}
+.rem{fill:transparent; cursor:pointer}
+.rem:focus{outline:none}
+.rem:focus-visible{stroke:var(--focus); stroke-width:4}
+.stand{fill:var(--stand)}
+.pivot{fill:var(--ink)}
+@media (max-width:640px){
+  .calc{grid-template-columns:1fr}
+  button.b{font-size:16px; padding:0 14px}
+  button.b.primary{font-size:19px; padding:0 20px}
+  .dot{width:34px; height:34px; font-size:14px}
+}
+@media (prefers-reduced-motion: reduce){ #toast{transition:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>てこのなぞ</h1>
+      <p class="sub">おもりをつるして、かくにんしよう</p>
+    </div>
+    <nav class="dots" id="dots" aria-label="なぞをえらぶ"></nav>
+  </header>
+
+  <section class="q">
+    <div class="qno" id="qno"></div>
+    <h2 class="qtitle" id="qtitle"></h2>
+    <p class="qtext" id="qtext"></p>
+    <div class="rule" id="rule"></div>
+  </section>
+
+  <div class="stage">
+    <svg id="lever" viewBox="0 0 1000 630" role="img" aria-label="実験用てこ"></svg>
+    <div class="chip" id="chip"></div>
+    <div class="legend">
+      <span><i style="background:var(--brass)"></i>つけたおもり（1個10g）</span>
+      <span><i style="background:var(--fixed)"></i>はじめからついているおもり</span>
+      <span><i style="background:var(--box)"></i>なぞの箱</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="b primary" id="check">手をはなしてかくにん</button>
+    <button class="b" id="clearBtn">おもりをぜんぶはずす</button>
+    <button class="b" id="hintBtn" aria-expanded="false">ヒント</button>
+  </div>
+  <p class="howto">光っている穴をタップするとおもり（10g）が1個つく。つけたおもりをタップすると1個はずれる。</p>
+  <div class="hint" id="hint" hidden></div>
+  <div id="allclear"></div>
+  <section id="result" aria-live="polite"></section>
+
+  <div class="nav">
+    <button class="b" id="prev">まえのなぞ</button>
+    <button class="b" id="next">つぎのなぞ</button>
+  </div>
+  <footer><button id="resetAll">クリアのきろくをけす</button></footer>
+</div>
+<div id="toast" role="status"></div>
+
+<script>
+const P = [
+  {title:'まずはつりあわせよう', text:'左の3の位置に20gのおもりがつるしてあるよ。右におもりをつるして、てこを水平にしよう。',
+   fixed:[{s:'L',p:3,n:2}], side:'R', pos:[1,2,3,4,5,6],
+   hint:'左は 20×3＝60。右の「重さ×きょり」も60になれば、つりあうよ。'},
+  {title:'つかえるのは1だけ', text:'左の2の位置に30g。右は1の位置にしかつるせないよ。何gつるせばつりあうかな？',
+   fixed:[{s:'L',p:2,n:3}], side:'R', pos:[1],
+   hint:'左は 30×2＝60。右は「？×1＝60」になればいい。'},
+  {title:'いちばん遠くから', text:'左の4の位置に30g。右は6の位置にしかつるせないよ。',
+   fixed:[{s:'L',p:4,n:3}], side:'R', pos:[6],
+   hint:'左は 30×4＝120。6とかけて120になる重さは？'},
+  {title:'おもりは2個だけ', text:'左の5の位置に20g。右に、おもりをちょうど2個つるしてつりあわせよう。2個を別の場所に分けてもいいよ。答えは1つじゃない！',
+   fixed:[{s:'L',p:5,n:2}], side:'R', pos:[1,2,3,4,5,6], max:2, exact:true,
+   hint:'左は 20×5＝100。おもり1個は10gだから、2個の「きょり」をたして10になればいい。'},
+  {title:'なぞの箱 その1', text:'左の2の位置に、重さのわからない「なぞの箱」がある。右におもりをつるしてつりあわせ、箱の重さを当てよう。',
+   fixed:[], box:{s:'L',p:2,g:40}, side:'R', pos:[1,2,3,4,5,6],
+   hint:'つりあったら右の合計を出そう。「箱の重さ×2」がそれと同じになるよ。'},
+  {title:'左に2か所', text:'左の1に40g、左の3に20g。右は5の位置にしかつるせないよ。',
+   fixed:[{s:'L',p:1,n:4},{s:'L',p:3,n:2}], side:'R', pos:[5],
+   hint:'左は 40×1 と 20×3 をたしたもの。右は「？×5」。'},
+  {title:'なぞの箱 その2', text:'こんどは右の2の位置になぞの箱。左におもりをつるしてつりあわせ、箱の重さを当てよう。',
+   fixed:[], box:{s:'R',p:2,g:90}, side:'L', pos:[1,2,3,4,5,6],
+   hint:'つりあったら左の合計を出そう。それを2でわると箱の重さになるよ。'},
+  {title:'もうついているおもり', text:'左の4に30g、右の2に20gがはじめからついている。右におもりを2個まで足してつりあわせよう。',
+   fixed:[{s:'L',p:4,n:3},{s:'R',p:2,n:2}], side:'R', pos:[1,2,3,4,5,6], max:2,
+   hint:'左は120、右はいま40。あと80たりない。足す2個の「きょり」の合計はいくつ？'},
+  {title:'たった3個で', text:'左の2に50g、左の5に10g。右におもりをちょうど3個つるしてつりあわせよう。',
+   fixed:[{s:'L',p:2,n:5},{s:'L',p:5,n:1}], side:'R', pos:[1,2,3,4,5,6], max:3, exact:true,
+   hint:'左は 100＋50＝150。おもり3個の「きょり」をたして15にしよう。'},
+  {title:'さいごのなぞ', text:'左の4になぞの箱、左の1に10gがついている。右におもりをつるしてつりあわせ、箱の重さを当てよう。',
+   fixed:[{s:'L',p:1,n:1}], box:{s:'L',p:4,g:50}, side:'R', pos:[1,2,3,4,5,6],
+   hint:'右の合計から、左の「10×1」のぶんをひく。のこりが「箱の重さ×4」だよ。'}
+];
+
+const NS='http://www.w3.org/2000/svg', CX=500, CY=170, STEP=70, TILT=10, MAXPER=10, KEY='teko-nazo-v1';
+const svg=document.getElementById('lever');
+const $=id=>document.getElementById(id);
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let cur=0, placed, mode='hold', solved=false, angle=0, vel=0, target=0, raf=null, bar=null, hangs=[];
+const cleared=new Set();
+try{ const s=JSON.parse(localStorage.getItem(KEY)||'[]'); if(Array.isArray(s)) s.forEach(i=>cleared.add(i)); }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify([...cleared])); }catch(e){} }
+
+const q=()=>P[cur];
+const sideName=s=>s==='L'?'左':'右';
+function fixedAt(s,p){ return q().fixed.filter(f=>f.s===s&&f.p===p).reduce((a,f)=>a+f.n,0); }
+function boxAt(s,p){ const b=q().box; return b&&b.s===s&&b.p===p?b:null; }
+function allowed(s,p){ return q().side===s && q().pos.includes(p); }
+function placedCount(){ return placed[q().side].reduce((a,b)=>a+b,0); }
+function moment(s){
+  let m=0;
+  for(let p=1;p<=6;p++){ m+=(fixedAt(s,p)+placed[s][p])*10*p; const b=boxAt(s,p); if(b) m+=b.g*p; }
+  return m;
+}
+function el(tag,attrs,parent){
+  const e=document.createElementNS(NS,tag);
+  for(const k in attrs) e.setAttribute(k,attrs[k]);
+  if(parent) parent.appendChild(e);
+  return e;
+}
+let toastT;
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
+
+function buildScene(){
+  const fk=document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.key : null;
+  svg.innerHTML=''; hangs=[];
+  el('rect',{x:370,y:574,width:260,height:20,rx:7,class:'stand'},svg);
+  el('rect',{x:489,y:CY,width:22,height:410,class:'stand'},svg);
+
+  for(const s of ['L','R']){
+    for(let p=1;p<=6;p++){
+      const f=fixedAt(s,p), n=placed[s][p], b=boxAt(s,p);
+      if(!f && !n && !b) continue;
+      const g=el('g',{class:'hang'},svg);
+      let y=0;
+      el('line',{x1:0,y1:0,x2:0,y2:44,class:'string'},g); y=44;
+      if(b){
+        el('rect',{x:-34,y:y,width:68,height:58,rx:8,class:'box'},g);
+        const t=el('text',{x:0,y:y+40,class:'boxq'},g); t.textContent=solved?b.g+'g':'？';
+        y+=62;
+      }
+      for(let i=0;i<f;i++){ el('rect',{x:-22,y:y,width:44,height:22,rx:4,class:'w fixed'},g); y+=25; }
+      const y0=y;
+      for(let i=0;i<n;i++){ el('rect',{x:-22,y:y,width:44,height:22,rx:4,class:'w placed'},g); y+=25; }
+      if(f+n>0){ const t=el('text',{x:0,y:y+18,class:'wlabel'},g); t.textContent=(f+n)*10+'g'; }
+      if(n>0){
+        const r=el('rect',{x:-30,y:y0-3,width:60,height:y-y0+4,class:'rem',tabindex:0,role:'button',
+          'aria-label':`${sideName(s)}の${p}のおもりを1個はずす`,'data-key':`rem-${s}${p}`},g);
+        r.addEventListener('click',()=>remove(s,p));
+        r.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();remove(s,p);} });
+      }
+      hangs.push({s,p,g});
+    }
+  }
+
+  bar=el('g',{},svg);
+  el('rect',{x:44,y:CY-13,width:912,height:26,rx:9,class:'bar'},bar);
+  const sl=el('text',{x:44,y:118,class:'sidelabel'},bar); sl.textContent='左';
+  const sr=el('text',{x:956,y:118,class:'sidelabel'},bar); sr.textContent='右';
+  const fl=el('text',{x:CX,y:132,class:'fulcrum'},bar); fl.textContent='支点';
+  for(const s of ['L','R']){
+    for(let p=1;p<=6;p++){
+      const x=CX+(s==='R'?1:-1)*p*STEP, on=allowed(s,p);
+      el('circle',{cx:x,cy:CY,r:on?8:6,class:'hole'+(on?' on':'')},bar);
+      const t=el('text',{x:x,y:CY-24,class:'num'+(on?'':' off')},bar); t.textContent=p;
+      if(on){
+        const h=el('circle',{cx:x,cy:CY,r:28,class:'hit',tabindex:0,role:'button',
+          'aria-label':`${sideName(s)}の${p}の位置におもりを1個つける`,'data-key':`hit-${s}${p}`},bar);
+        h.addEventListener('click',()=>add(s,p));
+        h.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();add(s,p);} });
+      }
+    }
+  }
+  el('circle',{cx:CX,cy:CY,r:11,class:'pivot'},svg);
+  layout();
+  if(fk){ const e=svg.querySelector(`[data-key="${fk}"]`); if(e) e.focus(); }
+}
+
+function layout(){
+  if(!bar) return;
+  bar.setAttribute('transform',`rotate(${angle} ${CX} ${CY})`);
+  const a=angle*Math.PI/180;
+  for(const h of hangs){
+    const d=(h.s==='R'?1:-1)*h.p*STEP;
+    h.g.setAttribute('transform',`translate(${CX+d*Math.cos(a)} ${CY+d*Math.sin(a)})`);
+  }
+}
+function animate(){
+  if(reduce){ angle=target; vel=0; layout(); return; }
+  if(!raf) raf=requestAnimationFrame(step);
+}
+function step(){
+  vel+=(target-angle)*0.035; vel*=0.9; angle+=vel;
+  if(angle>TILT){angle=TILT; vel=-vel*0.35;}
+  if(angle<-TILT){angle=-TILT; vel=-vel*0.35;}
+  layout();
+  if(Math.abs(vel)<0.004 && Math.abs(target-angle)<0.01){ angle=target; layout(); raf=null; return; }
+  raf=requestAnimationFrame(step);
+}
+
+function setChip(state){
+  const c=$('chip'); c.className='chip';
+  if(mode==='hold'){ c.textContent='いまは手でささえているよ'; }
+  else if(state==='ok'){ c.textContent='つりあった！'; c.classList.add('ok'); }
+  else { c.textContent=state+'にかたむいた'; c.classList.add('ng'); }
+}
+
+function add(s,p){
+  if(!allowed(s,p)) return;
+  if(fixedAt(s,p)+placed[s][p]>=MAXPER){ toast('1つの場所につるせるのは100g（10個）までだよ'); return; }
+  const m=q().max;
+  if(m && placedCount()>=m){ toast(`このなぞでは、おもりは${m}個までだよ`); return; }
+  placed[s][p]++; changed();
+}
+function remove(s,p){ if(placed[s][p]>0){ placed[s][p]--; changed(); } }
+function changed(){
+  mode='hold'; target=0; $('result').innerHTML='';
+  buildScene(); animate(); setChip();
+}
+
+function terms(s){
+  const out=[]; let known=0, boxP=0;
+  for(let p=1;p<=6;p++){
+    const b=boxAt(s,p);
+    if(b){
+      if(solved){ out.push(`${b.g} × ${p} ＝ ${b.g*p}`); known+=b.g*p; }
+      else { out.push(`？ × ${p}`); boxP=p; }
+    }
+    const w=(fixedAt(s,p)+placed[s][p])*10;
+    if(w){ out.push(`${w} × ${p} ＝ ${w*p}`); known+=w*p; }
+  }
+  let sum;
+  if(boxP) sum = known ? `？×${boxP} ＋ ${known}` : `？×${boxP}`;
+  else sum = String(known);
+  return {out,sum};
+}
+function calcHTML(){
+  const L=terms('L'), R=terms('R');
+  const side=(name,t)=>`<div class="side"><h3>${name}</h3><ul>${t.out.length?t.out.map(x=>`<li>${x}</li>`).join(''):'<li>なし</li>'}</ul><div class="sum">合計 ${t.sum}</div></div>`;
+  return `<p class="calc-head">おもりの重さ(g) × 支点からのきょり</p><div class="calc">${side('左',L)}${side('右',R)}</div>`;
+}
+
+function check(){
+  const L=moment('L'), R=moment('R'), pr=q(), res=$('result');
+  mode='released';
+  if(L===R){ target=0; vel=reduce?0:(Math.random()<.5?-1:1)*1.4; }
+  else target=R>L?TILT:-TILT;
+  animate();
+  if(L!==R){
+    const heavy=R>L?'右':'左';
+    setChip(heavy);
+    res.innerHTML=`<p class="verdict ng">${heavy}にかたむいた</p><p class="note">${heavy}の「重さ×きょり」が大きいみたい。おもりやつるす場所を変えてみよう。</p>${calcHTML()}`;
+    return;
+  }
+  setChip('ok');
+  if(pr.exact && placedCount()!==pr.max){
+    res.innerHTML=`<p class="verdict ng">つりあった！でも…</p><p class="note">このなぞは、おもりを「ちょうど${pr.max}個」使うのが条件だよ。いまは${placedCount()}個。</p>${calcHTML()}`;
+    return;
+  }
+  if(pr.box && !solved){
+    res.innerHTML=`<p class="verdict ok">つりあった！</p><p class="note">では、なぞの箱は何g？</p>${calcHTML()}
+      <div class="ask"><label for="ans">なぞの箱は</label><input id="ans" type="number" inputmode="numeric" min="0" step="10"><span>g</span>
+      <button class="b primary" id="ansBtn">こたえる</button></div><p class="note" id="ansMsg"></p>`;
+    const go=()=>answer($('ans').value);
+    $('ansBtn').addEventListener('click',go);
+    $('ans').addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+    $('ans').focus();
+    return;
+  }
+  win(`<p class="verdict ok">なぞクリア！</p><p class="note">左と右の「重さ×きょり」が同じになると、てこはつりあうね。</p>${calcHTML()}`);
+}
+function answer(v){
+  const b=q().box, msg=$('ansMsg');
+  if(v===''){ msg.textContent='数字を入れてね。'; return; }
+  if(Number(v)===b.g){
+    solved=true; buildScene();
+    win(`<p class="verdict ok">せいかい！なぞの箱は${b.g}g</p><p class="note">箱のがわと反対がわの「重さ×きょり」が同じになる重さを考えたね。</p>${calcHTML()}`);
+  }else{
+    msg.textContent='ちがうみたい。箱のがわの合計が、反対がわの合計と同じになる重さを考えよう。';
+  }
+}
+function win(html){
+  cleared.add(cur); save(); renderDots(); renderAllClear();
+  $('result').innerHTML=html+(cur<P.length-1?`<div class="controls"><button class="b primary" id="goNext">つぎのなぞへ</button></div>`:'');
+  const n=$('goNext'); if(n) n.addEventListener('click',()=>load(cur+1));
+}
+
+function renderDots(){
+  const d=$('dots'); d.innerHTML='';
+  P.forEach((_,i)=>{
+    const b=document.createElement('button');
+    b.className='dot'+(cleared.has(i)?' done':'');
+    b.textContent=i+1;
+    b.setAttribute('aria-label',`なぞ${i+1}${cleared.has(i)?'（クリア）':''}`);
+    b.setAttribute('aria-current', i===cur?'true':'false');
+    b.addEventListener('click',()=>load(i));
+    d.appendChild(b);
+  });
+}
+function renderAllClear(){
+  $('allclear').innerHTML = cleared.size===P.length ? '<div class="allclear">10問ぜんぶクリア！てこのなぞ名人だ！</div>' : '';
+}
+function renderRule(){
+  const pr=q(), r=$('rule'), items=[];
+  items.push(pr.pos.length<6 ? `${sideName(pr.side)}は ${pr.pos.join('・')} の位置だけ` : `${sideName(pr.side)}につるす`);
+  if(pr.max) items.push(pr.exact?`おもりはちょうど${pr.max}個`:`おもりは${pr.max}個まで`);
+  if(pr.box) items.push('箱の重さを当てる');
+  r.innerHTML=items.map(x=>`<span>${x}</span>`).join('');
+}
+function load(i){
+  cur=i; placed={L:[0,0,0,0,0,0,0],R:[0,0,0,0,0,0,0]};
+  mode='hold'; solved=false; angle=0; vel=0; target=0;
+  if(raf){ cancelAnimationFrame(raf); raf=null; }
+  $('qno').textContent=`なぞ ${i+1} / ${P.length}`;
+  $('qtitle').textContent=q().title;
+  $('qtext').textContent=q().text;
+  renderRule();
+  $('hint').hidden=true; $('hint').textContent=q().hint; $('hintBtn').setAttribute('aria-expanded','false');
+  $('result').innerHTML='';
+  $('prev').disabled=i===0; $('next').disabled=i===P.length-1;
+  $('prev').style.visibility=i===0?'hidden':'visible';
+  $('next').style.visibility=i===P.length-1?'hidden':'visible';
+  renderDots(); buildScene(); setChip();
+  window.scrollTo({top:0, behavior: reduce?'auto':'smooth'});
+}
+
+$('check').addEventListener('click',check);
+$('clearBtn').addEventListener('click',()=>{ placed={L:[0,0,0,0,0,0,0],R:[0,0,0,0,0,0,0]}; changed(); });
+$('hintBtn').addEventListener('click',()=>{ const h=$('hint'); h.hidden=!h.hidden; $('hintBtn').setAttribute('aria-expanded',String(!h.hidden)); });
+$('prev').addEventListener('click',()=>{ if(cur>0) load(cur-1); });
+$('next').addEventListener('click',()=>{ if(cur<P.length-1) load(cur+1); });
+$('resetAll').addEventListener('click',()=>{ if(confirm('クリアのきろくをけしますか？')){ cleared.clear(); save(); renderDots(); renderAllClear(); } });
+
+renderAllClear();
+load(0);
+</script>
+</body>
+</html>
