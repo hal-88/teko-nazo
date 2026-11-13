@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>てこのなぞ 10問</title>
+<title>てこのなぞ 15問</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
@@ -59,7 +59,10 @@ h1{margin:0; font-size:clamp(26px,4vw,36px); font-weight:900; letter-spacing:.04
   width:40px; height:40px; border-radius:50%; border:2px solid var(--line); background:var(--panel);
   color:var(--ink); font:inherit; font-weight:700; font-size:16px; cursor:pointer;
 }
+.dot.hard{border:3px solid var(--brass); color:var(--brass-d)}
 .dot.done{background:var(--ok); border-color:var(--ok); color:#fff}
+.dot.hard.done{border-color:var(--brass)}
+.hardtag{display:inline-block; margin-left:8px; padding:0 10px; border-radius:999px; background:var(--brass); color:#1d2b3a; font-size:13px; line-height:1.6; vertical-align:1px}
 .dot[aria-current="true"]{outline:3px solid var(--ink); outline-offset:2px}
 .q{border-left:8px solid var(--ink); padding:4px 0 4px 16px; margin:4px 0 10px}
 .qno{font-size:15px; color:var(--sub); font-weight:700}
@@ -86,6 +89,7 @@ svg{display:block; width:100%; height:auto; touch-action:manipulation; user-sele
 button.b{
   font:inherit; font-weight:700; font-size:18px; min-height:52px; padding:0 22px;
   border-radius:14px; border:2px solid var(--ink); background:var(--panel); color:var(--ink); cursor:pointer;
+  white-space:nowrap;
 }
 button.b.primary{background:var(--btn); color:var(--btn-text); font-size:21px; padding:0 30px}
 button:focus-visible{outline:3px solid var(--focus); outline-offset:3px}
@@ -193,8 +197,8 @@ button.b.sm{min-height:52px; padding:0 12px; font-size:18px}
   .side h3{font-size:14px; margin:0}
   .side ul{font-size:15px; line-height:1.5}
   .side .sum{font-size:16px; margin-top:4px; padding-top:4px}
-  .ask{font-size:17px; gap:6px; margin:6px 0; flex-wrap:nowrap}
-  .ask input{font-size:20px; min-height:46px; width:3.2em; padding:0 6px}
+  .ask{font-size:17px; gap:6px; margin:6px 0}
+  .ask input{font-size:20px; min-height:46px; width:3em; padding:0 4px}
   .stepper{gap:4px}
   button.b.sm{min-height:46px; font-size:16px; padding:0 8px}
   .ask .primary{padding:0 14px !important; margin-left:auto}
@@ -202,6 +206,19 @@ button.b.sm{min-height:52px; padding:0 12px; font-size:18px}
   #result button.b{min-height:46px; font-size:17px; padding:0 18px}
   .nav{margin-top:auto; padding-top:8px}
   .nav .b{min-height:44px; font-size:16px; padding:0 16px}
+  /* 右の列に入りきらないときだけ、文字を少し小さくする（JSの fitPanel が tight をつける） */
+  .panel.tight .qtitle{font-size:21px}
+  .panel.tight .qtext{font-size:15px; line-height:1.45}
+  .panel.tight .rule span{font-size:13px; padding:0 8px}
+  .panel.tight .verdict{font-size:19px}
+  .panel.tight .note{font-size:14px; margin-bottom:3px}
+  .panel.tight .calc-head{display:none}
+  .panel.tight .side ul{font-size:14px; line-height:1.4}
+  .panel.tight .side .sum{font-size:15px}
+  .panel.tight .ask{margin:4px 0}
+  .panel.tight .ask input, .panel.tight button.b.sm, .panel.tight #result button.b{min-height:42px}
+  .panel.tight .nav{padding-top:6px}
+  .panel.tight .nav .b{min-height:40px}
 }
 </style>
 </head>
@@ -285,7 +302,23 @@ const P = [
    hint:'左は 100＋50＝150。おもり3個の「きょり」をたして15にしよう。'},
   {title:'さいごのなぞ', text:'左の4になぞの箱、左の1に10gがついている。右におもりをつるしてつりあわせ、箱の重さを当てよう。',
    fixed:[{s:'L',p:1,n:1}], box:{s:'L',p:4,g:50}, side:'R', pos:[1,2,3,4,5,6],
-   hint:'右の合計から、左の「10×1」のぶんをひく。のこりが「箱の重さ×4」だよ。'}
+   hint:'右の合計から、左の「10×1」のぶんをひく。のこりが「箱の重さ×4」だよ。'},
+  // ここから難問（hard:true）
+  {title:'4と5だけ', text:'左の6に30g、左の1に10g。右は4と5の位置にしかつるせないよ。', hard:true,
+   fixed:[{s:'L',p:6,n:3},{s:'L',p:1,n:1}], side:'R', pos:[4,5],
+   hint:'左は 30×6＋10×1＝190。4と5を組み合わせて、右の合計を190にしよう。'},
+  {title:'7個まで', text:'左の5に60g、左の3に30g。右におもりを7個までつるして、つりあわせよう。', hard:true,
+   fixed:[{s:'L',p:5,n:6},{s:'L',p:3,n:3}], side:'R', pos:[1,2,3,4,5,6], max:7,
+   hint:'左は 300＋90＝390。7個ぜんぶ6につるすと 70×6＝420。390にするには、どれを近くに動かす？'},
+  {title:'箱と同じがわ', text:'左の5に60g。右の6になぞの箱がある。右におもりを足してつりあわせ、箱の重さを当てよう。', hard:true,
+   fixed:[{s:'L',p:5,n:6}], box:{s:'R',p:6,g:30}, side:'R', pos:[1,2,3,4,5,6],
+   hint:'つりあったら、左の合計から右のおもりのぶんをひこう。のこりが「箱の重さ×6」だよ。'},
+  {title:'4と6でちょうど4個', text:'左の3になぞの箱。右は4と6の位置だけで、おもりはちょうど4個。つりあわせて箱の重さを当てよう。', hard:true,
+   fixed:[], box:{s:'L',p:3,g:60}, side:'R', pos:[4,6], max:4, exact:true,
+   hint:'4個の分け方は「4に4個」「4に3個と6に1個」…の5通り。ためして、かたむきを見よう。'},
+  {title:'さいごの難問', text:'左の4になぞの箱、左の6に10g、右の3に20gがはじめからついている。下の条件でつりあわせて、箱の重さを当てよう。', hard:true,
+   fixed:[{s:'L',p:6,n:1},{s:'R',p:3,n:2}], box:{s:'L',p:4,g:40}, side:'R', pos:[2,5], max:5, exact:true,
+   hint:'右はいま 20×3＝60。5個を2と5に分ける組み合わせを、じゅんにためそう。'}
 ];
 
 const NS='http://www.w3.org/2000/svg', CX=500, CY=170, STEP=70, TILT=10, MAXPER=10, KEY='teko-nazo-v1';
@@ -476,7 +509,7 @@ function answer(v){
     solved=true; buildScene();
     win(`<p class="verdict ok">せいかい！なぞの箱は${b.g}g</p><p class="note">箱のがわと反対がわの「重さ×きょり」が同じになる重さを考えたね。</p>${calcHTML()}`);
   }else{
-    msg.textContent='ちがうみたい。箱のがわの合計が、反対がわの合計と同じになる重さを考えよう。';
+    msg.textContent='ちがうみたい。左と右の合計が同じになる重さを考えよう。';
   }
 }
 function win(html){
@@ -489,16 +522,16 @@ function renderDots(){
   const d=$('dots'); d.innerHTML='';
   P.forEach((_,i)=>{
     const b=document.createElement('button');
-    b.className='dot'+(cleared.has(i)?' done':'');
+    b.className='dot'+(P[i].hard?' hard':'')+(cleared.has(i)?' done':'');
     b.textContent=i+1;
-    b.setAttribute('aria-label',`なぞ${i+1}${cleared.has(i)?'（クリア）':''}`);
+    b.setAttribute('aria-label',`なぞ${i+1}${P[i].hard?'（難問）':''}${cleared.has(i)?'（クリア）':''}`);
     b.setAttribute('aria-current', i===cur?'true':'false');
     b.addEventListener('click',()=>load(i));
     d.appendChild(b);
   });
 }
 function renderAllClear(){
-  $('allclear').innerHTML = cleared.size===P.length ? '<div class="allclear">10問ぜんぶクリア！てこのなぞ名人だ！</div>' : '';
+  $('allclear').innerHTML = cleared.size===P.length ? `<div class="allclear">${P.length}問ぜんぶクリア！てこのなぞ名人だ！</div>` : '';
 }
 function renderRule(){
   const pr=q(), r=$('rule'), items=[];
@@ -511,7 +544,7 @@ function load(i){
   cur=i; placed={L:[0,0,0,0,0,0,0],R:[0,0,0,0,0,0,0]};
   mode='hold'; solved=false; angle=0; vel=0; target=0;
   if(raf){ cancelAnimationFrame(raf); raf=null; }
-  $('qno').textContent=`なぞ ${i+1} / ${P.length}`;
+  $('qno').innerHTML=`なぞ ${i+1} / ${P.length}`+(q().hard?'<span class="hardtag">難問</span>':'');
   $('qtitle').textContent=q().title;
   $('qtext').textContent=q().text;
   renderRule();
@@ -535,6 +568,14 @@ document.addEventListener('touchmove',e=>{
   if(!p || p.scrollHeight<=p.clientHeight+1) e.preventDefault();
 },{passive:false});
 document.addEventListener('dblclick',e=>e.preventDefault());
+
+// 横画面で右の列に入りきらないときは、文字を少し小さくして収める
+function fitPanel(){
+  const pn=$('panel'); pn.classList.remove('tight');
+  if(fit.matches && pn.scrollHeight>pn.clientHeight+1) pn.classList.add('tight');
+}
+new MutationObserver(fitPanel).observe($('panel'),{childList:true, subtree:true, characterData:true});
+window.addEventListener('resize',fitPanel);
 
 $('check').addEventListener('click',check);
 $('clearBtn').addEventListener('click',()=>{ placed={L:[0,0,0,0,0,0,0],R:[0,0,0,0,0,0,0]}; changed(); });
